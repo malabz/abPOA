@@ -117,5 +117,5 @@ void abpoa_dump_pog(abpoa_t *ab, abpoa_para_t *abpt) {
         err_fatal_simple("POG can only be dump to .pdf/.png file");
     sprintf(cmd, "dot %s -T%s > %s", dot_fn, type+1, abpt->out_pog);
     free(dot_fn);
-    if (system(cmd) != 0) err_fatal(__func__, "Fail to plot %s DAG.", PROG);
+    if (system(cmd) != 0) err_fatal(__func__, "Fail to plot %s DAG. You may need to install or check your dot program.\nInstall graphviz will fix this problem. See https://www.graphviz.org/download/ for more information", PROG);
 }

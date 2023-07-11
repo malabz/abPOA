@@ -30,9 +30,13 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include <zlib.h>
+#if (defined(_WIN32) || defined(_WIN64))
+#include "sys/resource1.h"
+#include "sys/time1.h"
+#else
 #include <sys/resource.h>
 #include <sys/time.h>
+#endif
 
 #ifndef kroundup32
 #define kroundup32(x) (--(x), (x)|=(x)>>1, (x)|=(x)>>2, (x)|=(x)>>4, (x)|=(x)>>8, (x)|=(x)>>16, ++(x))
@@ -77,11 +81,9 @@ extern "C" {
 	void _err_fatal_simple_core(const char *func, const char *msg) ATTRIBUTE((noreturn));
 	FILE *err_xopen_core(const char *func, const char *fn, const char *mode);
 	FILE *err_xreopen_core(const char *func, const char *fn, const char *mode, FILE *fp);
-	gzFile err_xzopen_core(const char *func, const char *fn, const char *mode);
     size_t err_fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream);
 	size_t err_fread_noeof(void *ptr, size_t size, size_t nmemb, FILE *stream);
 
-	int err_gzread(gzFile file, void *ptr, unsigned int len);
 	int err_fseek(FILE *stream, long offset, int whence);
 #define err_rewind(FP) err_fseek((FP), 0, SEEK_SET)
 	long err_ftell(FILE *stream);
@@ -100,7 +102,6 @@ extern "C" {
     void err_fgets(char *buff, size_t s, FILE *fp);
 	int err_fflush(FILE *stream);
 	int err_fclose(FILE *stream);
-	int err_gzclose(gzFile file);
 
 #define _err_malloc(s) err_malloc(__func__, s)
 #define _err_calloc(n, s) err_calloc(__func__, n, s)
@@ -243,7 +244,20 @@ static inline uint64_t hash_64(uint64_t key)
 }
 #ifndef _PRINT_FORMAT_H_
 #define _PRINT_FORMAT_H_
-
+#if (defined(_WIN32) || defined(_WIN64))
+#define NONE "\033[0m"
+#define UNDERLINE "\033[04m"
+#define BLACK "\033[30m"
+#define RED "\033[31m"
+#define GREEN "\033[32m"
+#define YELLOW "\033[33m"
+#define BLUE "\033[34m"
+#define PURPLE "\033[35m"
+#define CYAN "\033[36m"
+#define WHIHE "\033[37m"
+#define BOLD "\033[1m"
+// control code is from https://student.cs.uwaterloo.ca/~cs452/terminal.html
+#else
 #define NONE "\e[0m" //remove color/font
 #define BLACK "\e[0;30m" // black
 #define B_BLACK "\e[1;30m" // bold black
@@ -271,7 +285,7 @@ static inline uint64_t hash_64(uint64_t key)
 #define CLRLINE "\r\e[K" // clear line
 
 // from https://blog.csdn.net/MoDa_Li/java/article/details/82156888
-
+#endif
 #endif
 
 #endif

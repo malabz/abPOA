@@ -595,8 +595,8 @@ int abpoa_fa_parse_seq(abpoa_graph_t *abg, abpoa_seq_t *abs, kstring_t *seq, kst
 abpoa_t *abpoa_restore_graph(abpoa_t *ab, abpoa_para_t *abpt) {
     char *fn = abpt->incr_fn;
     if (fn == NULL) return ab;
-    gzFile fp = fn && strcmp(fn, "-")? gzopen(fn, "r") : gzdopen(0, "r"); if (fp == 0) return NULL;
-    kstream_t *ks = ks_init(fp); kstring_t s={0,0,0}; int dret, line_n=0, read_name_e; 
+    FILE* fp = fn && strcmp(fn, "-")? fopen(fn, "r") : stdin; if (fp == 0) return NULL;
+    kstream_t *ks = ks_init(fileno(fp)); kstring_t s={0,0,0}; int dret, line_n=0, read_name_e; 
     seg_seq_t *seqs = seg_seq_init(); 
     khash_t(abstr) *seg_name2in_id = kh_init(abstr), *seg_name2out_id = kh_init(abstr);
     int add_read_id = abpt->use_read_ids;
@@ -648,7 +648,8 @@ abpoa_t *abpoa_restore_graph(abpoa_t *ab, abpoa_para_t *abpt) {
         seqs->n++;
     }
     if (s.m) free(s.s);
-    ks_destroy(ks); gzclose(fp);
+    ks_destroy(ks); 
+    if(fp != stdin) fclose(fp);
     seg_seq_free(seqs); kh_destroy(abstr, seg_name2in_id); kh_destroy(abstr, seg_name2out_id);
     if (rank2node_id) free(rank2node_id);
     if (abs->n_seq == 0) {

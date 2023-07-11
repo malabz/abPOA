@@ -5,9 +5,73 @@
 [![PyPI](https://img.shields.io/pypi/dm/pyabpoa.svg?label=pip%20install)](https://pypi.python.org/pypi/pyabpoa)
 [![Published in Bioinformatics](https://img.shields.io/badge/Published%20in-Bioinformatics-blue.svg)](https://dx.doi.org/10.1093/bioinformatics/btaa963)
 [![GitHub Issues](https://img.shields.io/github/issues/yangao07/abPOA.svg?label=Issues)](https://github.com/yangao07/abPOA/issues)
-[![Build Status](https://img.shields.io/travis/yangao07/abPOA/master.svg?label=Master)](https://travis-ci.org/yangao07/abPOA)
 [![License](https://img.shields.io/badge/License-MIT-black.svg)](https://github.com/yangao07/abPOA/blob/master/LICENSE)
-<!-- [![PyPI](https://img.shields.io/pypi/v/pyabpoa.svg?style=flat)](https://pypi.python.org/pypi/pyabpoa) -->
+# Modified by wym6912
+[![Latest Release](https://img.shields.io/github/release/malabz/abPOA.svg?label=Release)](https://github.com/malabz/abPOA/releases/latest)
+[![Github All Releases](https://img.shields.io/github/downloads/malabz/abPOA/total.svg?label=Download)](https://github.com/malabz/abPOA/releases)
+[![BioConda Install](https://img.shields.io/conda/dn/wym6912/abpoa.svg?style=flag&label=BioConda%20install)](https://anaconda.org/wym6912/abpoa)
+
+Modified by wym6912 wym6912@outlook.com
+
+## Updates (v1.4.1.1)
+
+- Add Windows compile support in `Visual Studio 2022`
+- Fix RNA sequences when outputting `U` to `T` in `MSA-RC` format
+- Add compile flag `-static` in all programs when using `cc`/`gcc`/`clang` compilers
+- Remove `gz` dependency
+- Remove `python` support
+
+## Windows support
+
+Add `Visual Studio 2022` support with defined these macros in `.vcxproj` files:
+
+```c
+#define USE_SIMDE
+#define SIMDE_ENABLE_NATIVE_ALIASES
+#define __AVX2__
+#define WIN32_LEAN_AND_MEAN // fix conflict values
+```
+
+### For development in Windows
+
+abPOA is not only a stand-alone tool for MSA and consensus calling, it can also work as a library. [`example.c`](example.c) shows how to use the C APIs of abPOA to take a set of sequences as input and perform MSA and consensus calling, and [`abPOA_example.vcxproj`](abPOA_example.vcxproj) shows how to use the libraries. Basically, the library project `lib_abPOA.vcxproj` with two header files [`abpoa.h`](include/abpoa.h) and [`simd_instruction.h`](include/simd_instruction.h) are needed to make the abPOA library work in your VS project.
+
+## Getting started
+### Linux
+
+Download the [latest release](https://github.com/malabz/abPOA/releases):
+```bash
+wget https://github.com/malabz/abPOA/releases/download/v1.4.1.1/abPOA-v1.4.1.1.tar.gz
+tar -zxvf abPOA-v1.4.1.1.tar.gz && cd abPOA-v1.4.1.1
+```
+Make from source and run with test data:
+```bash
+make; ./bin/abpoa ./test_data/seq.fa > cons.fa
+```
+Or, install via `conda` and run with test data:
+```bash
+conda install -c wym6912 abpoa
+abpoa ./test_data/seq.fa > cons.fa
+```
+
+### Windows
+
+Download the [latest release](https://github.com/malabz/abPOA/releases/download/v1.4.1.1/abPOA-v1.4.1.1.tar.gz) and use `Bandizip`, `WinRAR` or any other archive manager software.
+
+Make programs from `Visual Studio 2022`:
+- First of all, download and install [`Visual Studio 2022`](https://visualstudio.microsoft.com/vs/).
+- Open `abpoa.sln` in `Visual Studio 2022`, then choose `Build` -> `Build Solution`.
+- Open `x64\Debug` folder, you will find `abpoa.exe`.
+  - Note: If you want to release this solution, please switch it to `Release` mode. Select `Properties`, choose `Configuration Properties`, then press `Configuration Manager...` button, change `Active Solution configuration` to `Release`. You can find `abpoa.exe` in `x64\Release` folder.
+
+Or, install via `conda` and run with test data:
+```posh
+conda install -c wym6912 abpoa
+abpoa ./test_data/seq.fa > cons.fa
+```
+
+# RAW README
+
 ## Updates (v1.4.1)
 
 - Take quality score in FASTQ format file as weight (-Q)
@@ -29,32 +93,37 @@ abpoa ./test_data/seq.fa > cons.fa
 ```
 ## Table of Contents
 
-- [Introduction](#introduction)
-- [Installation](#install)
-  - [Installing abPOA via conda](#conda)
-  - [Building abPOA from source files](#build)
-  - [Pre-built binary executable file for Linux/Unix](#binary)
-- [General usage](#usage)
-  - [To generate one consensus sequence](#gen_1cons)
-  - [To generate multiple consensus sequences](#gen_mcons)
-  - [To generate row-column multiple sequence alignment](#gen_msa)
-  - [To generate graph information in GFA format](#gen_gfa)
-  - [To align sequence to an existing graph in GFA/MSA format](#aln_to_gfa)
-  - [To generate a plot of the alignment graph](#gen_plot)
-- [Input](#input)
-- [Output](#output)
-  - [Consensus sequence](#cons)
-  - [Row-column multiple sequence alignment](#msa)
-  - [Full graph information](#gfa)
-  - [Plot of alignment graph](#plot)
-- [Algorithm description](#description)
-  - [Adaptive banding](#banding)
-  - [Minimizer-based seeding and partition](#seeding)
-  - [Minimizer-based progressive tree](#tree)
-  - [Multiple conensus sequences](#mcons)
-- [For development](#dev)
-- [Evaluation datasets](#eval)
-- [Contact](#contact)
+- [abPOA: adaptive banded Partial Order Alignment](#abpoa-adaptive-banded-partial-order-alignment)
+  - [Updates (v1.4.1)](#updates-v141)
+  - [Getting started](#getting-started)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Installation](#installation)
+    - [Installing abPOA via conda](#installing-abpoa-via-conda)
+    - [Building abPOA from source files](#building-abpoa-from-source-files)
+    - [Pre-built binary executable file for Linux/Unix](#pre-built-binary-executable-file-for-linuxunix)
+  - [General usage](#general-usage)
+    - [To generate consensus sequence](#to-generate-consensus-sequence)
+    - [To generate multiple consensus sequences](#to-generate-multiple-consensus-sequences)
+    - [To generate row-column multiple sequence alignment in FASTA format](#to-generate-row-column-multiple-sequence-alignment-in-fasta-format)
+    - [To generate graph information in GFA format](#to-generate-graph-information-in-gfa-format)
+    - [To align sequence to an existing graph in GFA/MSA format](#to-align-sequence-to-an-existing-graph-in-gfamsa-format)
+    - [To generate a plot of the alignment graph](#to-generate-a-plot-of-the-alignment-graph)
+  - [Input](#input)
+  - [Output](#output)
+    - [Consensus sequence](#consensus-sequence)
+    - [Row-column multiple sequence alignment](#row-column-multiple-sequence-alignment)
+    - [Full graph information](#full-graph-information)
+    - [Plot of alignment graph](#plot-of-alignment-graph)
+  - [Algorithm description](#algorithm-description)
+    - [Adaptive banding](#adaptive-banding)
+    - [Minimizer-based seeding mode](#minimizer-based-seeding-mode)
+    - [Minimizer-based progressive tree](#minimizer-based-progressive-tree)
+    - [Multiple consensus sequences](#multiple-consensus-sequences)
+  - [For development](#for-development)
+  - [Evaluation datasets](#evaluation-datasets)
+  - [Contact](#contact)
+  - [Windows modification](#windows-modification)
 
 ## <a name="introduction"></a>Introduction
 abPOA is an extended version of [Partial Order Alignment (POA](10.1093/bioinformatics/18.3.452)) 

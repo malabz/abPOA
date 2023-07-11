@@ -43,33 +43,8 @@ sub_example
 *.x86_64
 *.hex
 
-# Debug files
-*.dSYM/
-*.su
-
-#data
-data/*
-test_data/cons.fa
-*.dot
-*.png
-*.pdf
-
-#tags
-tags
-cscope.*
-
-# python
-dist/*
-pyabpoa.egg-info/*
-python/build/*
-python/dist/*
-python/example.png
-python/pyabpoa.c
-python/pyabpoa.egg-info/*
-python/src/*
-
-# eval file
-evaluation/msa_abPOA
-evaluation/msa_spoa
-#evaluation/racon_abPOA
-#evaluation/racon_spoa
+# Visual Studio Files
+.vs/*
+.vscode/*
+x64/*
+*.aps

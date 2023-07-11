@@ -69,6 +69,9 @@ abpoa_cons_t *abpoa_allocate_rc_msa(abpoa_cons_t *abc, int msa_len, int n_seq, i
 
 void abpoa_output_rc_msa(abpoa_t *ab, abpoa_para_t *abpt, FILE *out_fp) {
     if (out_fp == NULL) return;
+    // print U in RNA
+    short changedU = (ab_char256_table['U'] != 'U'); char rawU = ab_char256_table['U'];
+    if(changedU) ab_char256_table['U'] = 'U';
     int i, j;
     abpoa_seq_t *abs = ab->abs; abpoa_cons_t *abc = ab->abc;
     if (abc->msa_len <= 0) return;
@@ -98,6 +101,7 @@ void abpoa_output_rc_msa(abpoa_t *ab, abpoa_para_t *abpt, FILE *out_fp) {
             fprintf(out_fp, "\n");
         }
     }
+    ab_char256_table['U'] = rawU; // revert change
 }
 
 void abpoa_set_msa_seq(abpoa_node_t node, int rank, uint8_t **msa_base) {

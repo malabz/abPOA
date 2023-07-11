@@ -24,21 +24,28 @@
 */
 
 /* Contact: Heng Li <lh3@sanger.ac.uk> */
+#if !(defined(_WIN32) || defined(_WIN64))
 #define FSYNC_ON_FLUSH
+#endif
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <zlib.h>
 #include <errno.h>
 #ifdef FSYNC_ON_FLUSH
 #include <sys/types.h>
 #include <sys/stat.h>
+#if (defined(_WIN32) || defined(_WIN64))
+#include "sys/time.h"
+#include "sys/resource.h"
+#else
 #include <unistd.h>
-#endif
 #include <sys/resource.h>
 #include <sys/time.h>
+#endif
+#endif
+
 #include <time.h>
 #include "utils.h"
 
@@ -48,7 +55,6 @@ KSORT_INIT(128, pair64_t, pair64_lt)
 KSORT_INIT(64,  uint64_t, ks_lt_generic)
 
 #include "kseq.h"
-KSEQ_INIT2(, gzFile, err_gzread)
 
 /********************
  * System utilities *
@@ -69,21 +75,6 @@ FILE *err_xreopen_core(const char *func, const char *fn, const char *mode, FILE 
 {
 	if (freopen(fn, mode, fp) == 0) {
 		err_fatal(func, "fail to open file '%s' : %s", fn, strerror(errno));
-	}
-	return fp;
-}
-
-gzFile err_xzopen_core(const char *func, const char *fn, const char *mode)
-{
-	gzFile fp;
-	if (strcmp(fn, "-") == 0) {
-		fp = gzdopen(fileno((strstr(mode, "r"))? stdin : stdout), mode);
-		/* According to zlib.h, this is the only reason gzdopen can fail */
-		if (!fp) err_fatal(func, "Out of memory");
-		return fp;
-	}
-	if ((fp = gzopen(fn, mode)) == 0) {
-		err_fatal(func, "fail to open file '%s' : %s", fn, errno ? strerror(errno) : "Out of memory");
 	}
 	return fp;
 }
@@ -137,20 +128,6 @@ size_t err_fread_noeof(void *ptr, size_t size, size_t nmemb, FILE *stream)
 	{
 		_err_fatal_simple("fread", ferror(stream) ? strerror(errno) : "Unexpected end of file");
 	}
-	return ret;
-}
-
-int err_gzread(gzFile file, void *ptr, unsigned int len)
-{
-	int ret = gzread(file, ptr, len);
-
-	if (ret < 0)
-	{
-		int errnum = 0;
-		const char *msg = gzerror(file, &errnum);
-		_err_fatal_simple("gzread", Z_ERRNO == errnum ? strerror(errno) : msg);
-	}
-
 	return ret;
 }
 
@@ -298,17 +275,6 @@ int err_fclose(FILE *stream)
 	return ret;
 }
 
-int err_gzclose(gzFile file)
-{
-	int ret = gzclose(file);
-	if (Z_OK != ret)
-	{
-		_err_fatal_simple("gzclose", Z_ERRNO == ret ? strerror(errno) : zError(ret));
-	}
-
-	return ret;
-}
-
 /*********
  * alloc *
  *********/
@@ -354,7 +320,11 @@ double cputime()
 double realtime()
 {
 	struct timeval tp;
+#if !(defined(_WIN32) || defined(_WIN64))
 	struct timezone tzp;
+#else
+	void* tzp = NULL;
+#endif
 	gettimeofday(&tp, &tzp);
 	return tp.tv_sec + tp.tv_usec * 1e-6;
 }

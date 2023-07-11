@@ -1,12 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <getopt.h>
 #include "abpoa.h"
 #include "abpoa_graph.h"
 #include "abpoa_align.h"
 #include "abpoa_seq.h"
 #include "utils.h"
+#if (defined(_WIN32) || defined(_WIN64))
+#include "../include/getopt9/include/getopt.h"
+#else
+#include <getopt.h>
+#endif
 
 char NAME[20] = "abPOA";
 char PROG[20] = "abpoa";
@@ -15,8 +19,8 @@ char PROG[20] = "abpoa";
 #define _bP BOLD UNDERLINE "P" NONE
 #define _bO BOLD UNDERLINE "O" NONE
 #define _bA BOLD UNDERLINE "A" NONE
-char DESCRIPTION[100] = _ba "daptive " _bb "anded " _bP "artial " _bO "rder " _bA "lignment";
-char VERSION[20] = "1.4.1";
+char DESCRIPTION[200] = _ba "daptive " _bb "anded " _bP "artial " _bO "rder " _bA "lignment";
+char VERSION[20] = "1.4.1.1";
 char CONTACT[30] = "gaoy1@chop.edu";
 
 const struct option abpoa_long_opt [] = {
@@ -60,6 +64,14 @@ const struct option abpoa_long_opt [] = {
 
 int abpoa_usage(void)
 {
+#if (defined(_WIN32) || defined(_WIN64))
+    // solution from https://stackoverflow.com/questions/4053837/colorizing-text-in-the-console-with-c
+    DWORD dwMode;
+    HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+    GetConsoleMode(hOutput, &dwMode);
+    dwMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(hOutput, dwMode);
+#endif
     err_printf("\n");
     err_printf("%s: %s \n\n", PROG, DESCRIPTION);
     err_printf("Version: %s\t", VERSION);

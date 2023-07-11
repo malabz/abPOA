@@ -610,6 +610,10 @@ static void *SIMDMalloc(size_t size, size_t align) {
     else return ret;
 }*/
 
+#if (defined(_WIN32) || defined(_WIN64))
+#define posix_memalign(p, a, s)  (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
+#endif
+
 // use posix_memalign
 static void *SIMDMalloc(size_t size, size_t align) {
     void *ret; int res;
