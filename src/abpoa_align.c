@@ -30,6 +30,7 @@ extern char ab_aa26_table[256];
 extern char ab_aa256_table[256];
 extern char ab_char26_table[256];
 extern char ab_char256_table[256];
+extern char ab_blosum62[][100];
 
 void parse_mat_first_line(char *l, int *order) {
     int i, n;
@@ -84,6 +85,40 @@ void abpoa_set_mat_from_file(abpoa_para_t *abpt, char *mat_fn) {
     free(l); free(order); fclose(fp);
 }
 
+void abpoa_set_mat_from_var(abpoa_para_t *abpt, char** matrix, int abpt_sz)
+{
+    char *this_line = matrix[0];
+    int first_line = 1;
+    if(abpt_sz != abpt->m) 
+    {
+        err_func_printf(__func__, "Warning: matrix length %d is different with default setting (%d). Use default matrix", abpt->m, abpt_sz); 
+        return; 
+    }
+    int *order = (int*)_err_malloc(abpt_sz * sizeof(int));
+    for(; strlen(this_line) > 0; ++ this_line)
+    {
+        if(first_line)
+        {
+            first_line = 0;
+            // get string bases
+            parse_mat_first_line(this_line, order);
+        }
+        else 
+        {
+            // get match/mismatch scores
+            parse_mat_score_line(this_line, order, abpt->m, abpt->mat);
+        }
+    }
+    int i; abpt->min_mis = 0, abpt->max_mat = 0;
+    for (i = 0; i < abpt->m * abpt->m; ++i) {
+        if (abpt->mat[i] > abpt->max_mat)
+            abpt->max_mat = abpt->mat[i];
+        if (-abpt->mat[i] > abpt->min_mis) 
+            abpt->min_mis = -abpt->mat[i];
+    }
+    free(order);
+}
+
 void abpoa_set_gap_mode(abpoa_para_t *abpt) {
     if (abpt->gap_open1 == 0) abpt->gap_mode = ABPOA_LINEAR_GAP;
     else if (abpt->gap_open1 > 0 && abpt->gap_open2 == 0) abpt->gap_mode = ABPOA_AFFINE_GAP;
@@ -115,6 +150,7 @@ abpoa_para_t *abpoa_init_para(void) {
     // number of residue types
     abpt->m = 5; // nucleotide
     abpt->mat = (int*)_err_malloc(abpt->m * abpt->m * sizeof(int));
+    abpt->has_u = 0; // DNA sequence
 
     // score matrix
     abpt->use_score_matrix = 0;
@@ -164,7 +200,14 @@ void abpoa_post_set_para(abpoa_para_t *abpt) {
         }
     }
     if (abpt->use_score_matrix == 0) gen_simple_mat(abpt);
-    else abpoa_set_mat_from_file(abpt, abpt->mat_fn);
+    else if(abpt->use_score_matrix == 1) abpoa_set_mat_from_file(abpt, abpt->mat_fn);
+    else if(abpt->use_score_matrix == 2) 
+    {
+        _err_simple_func_printf("Try to use BLOSUM62 matrix");
+        abpoa_set_mat_from_var(abpt, (char**)ab_blosum62, 26);
+        
+    }
+    else err_fatal_core(__func__, "score matrix = %d, which is unsupported.\n", abpt->use_score_matrix);
 }
 
 void abpoa_free_para(abpoa_para_t *abpt) {
@@ -443,7 +486,7 @@ int abpoa_msa1(abpoa_t *ab, abpoa_para_t *abpt, char *read_fn, FILE *out_fp) {
     abpoa_seq_t *abs = ab->abs; int exist_n_seq = abs->n_seq;
 
     // read seq from read_fn
-    FILE* readfp = fopen(read_fn, "r"); kseq_t *ks = kseq_init(fileno(readfp));
+    FILE* readfp = xopen(read_fn, "r"); kseq_t *ks = kseq_init(fileno(readfp));
     int i, j, n_seq = abpoa_read_seq(abs, ks);
 
     // always reset graph before perform POA
@@ -452,21 +495,46 @@ int abpoa_msa1(abpoa_t *ab, abpoa_para_t *abpt, char *read_fn, FILE *out_fp) {
         if (abs->seq[i].l > max_len) max_len = abs->seq[i].l;
     }
 
+    // detect u and t
+    int has_st = 0, has_su = 0;
+
     // set seqs, seq_lens
     extern char ab_char26_table[256];
     uint8_t **seqs = (uint8_t**)_err_malloc(n_seq * sizeof(uint8_t*)); int *seq_lens = (int*)_err_malloc(n_seq * sizeof(int));
     int **weights = (int**)_err_malloc(n_seq * sizeof(int*));
+    char ch;
     for (i = 0; i < n_seq; ++i) {
         seq_lens[i] = abs->seq[exist_n_seq+i].l;
         seqs[i] = (uint8_t*)_err_malloc(sizeof(uint8_t) * seq_lens[i]);
         weights[i] = (int*)_err_malloc(sizeof(int) * seq_lens[i]);
-        for (j = 0; j < seq_lens[i]; ++j) seqs[i][j] = ab_char26_table[(int)abs->seq[exist_n_seq+i].s[j]];
+        for (j = 0; j < seq_lens[i]; ++j) 
+        {
+            ch = abs->seq[exist_n_seq+i].s[j];
+            seqs[i][j] = ab_char26_table[(int)ch];
+            if(ch == 'U' || ch == 'u') ++ has_su;
+            else if(ch == 'T' || ch == 't') ++ has_st;
+        }
         if (abpt->use_qv && abs->qual[exist_n_seq+i].l > 0) {
             for (j = 0; j < seq_lens[i]; ++j) weights[i][j] = (int)abs->qual[exist_n_seq+i].s[j]-32;
         } else {
             for (j = 0; j < seq_lens[i]; ++j) weights[i][j] = 1;
         }
     }
+    if(abpt->m == 5) // nuc
+    {
+        if(has_st && has_su) err_fatal_core(__func__, "DNA sequence has U and T. Please check the sequences, use --amino-acid or -c if sequences are protein.\n");
+        else if(has_su) 
+        {
+            _err_simple_func_printf("detected RNA sequences");
+            abpt->has_u = 1;
+        }
+        else
+        {
+            _err_simple_func_printf("detected DNA sequences");
+            abpt->has_u = 0;
+        }
+    }
+    else _err_simple_func_printf("detected Protein sequences\n");
     if ((abpt->disable_seeding && abpt->progressive_poa==0) || abpt->align_mode != ABPOA_GLOBAL_MODE) {
         abpoa_poa(ab, abpt, seqs, weights, seq_lens, exist_n_seq, n_seq);
     } else {

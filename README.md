@@ -13,6 +13,11 @@
 
 Modified by wym6912 wym6912@outlook.com
 
+## Updates (v1.4.1.2)
+
+- Fix bug in outputting RNA sequences in `v1.4.1.1`
+- Add `BLOSUM62` matrix arugment (`-B/--blosum`)
+
 ## Updates (v1.4.1.1)
 
 - Add Windows compile support in `Visual Studio 2022`

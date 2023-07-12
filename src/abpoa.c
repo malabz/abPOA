@@ -20,7 +20,7 @@ char PROG[20] = "abpoa";
 #define _bO BOLD UNDERLINE "O" NONE
 #define _bA BOLD UNDERLINE "A" NONE
 char DESCRIPTION[200] = _ba "daptive " _bb "anded " _bP "artial " _bO "rder " _bA "lignment";
-char VERSION[20] = "1.4.1.1";
+char VERSION[20] = "1.4.1.2";
 char CONTACT[30] = "gaoy1@chop.edu";
 
 const struct option abpoa_long_opt [] = {
@@ -55,6 +55,7 @@ const struct option abpoa_long_opt [] = {
     { "out-pog", 1, NULL, 'g' },
     { "max-num-cons", 1, NULL, 'd', },
     { "min-freq", 1, NULL, 'q', },
+    { "blosum", 0, NULL, 'B', },
 
     { "help", 0, NULL, 'h' },
     { "version", 0, NULL, 'v' },
@@ -115,6 +116,7 @@ int abpoa_usage(void)
     err_printf("  Input/Output:\n");
     err_printf("    -Q --use-qual-weight    take base quality score from FASTQ input file as graph edge weight [False]\n");
     err_printf("    -c --amino-acid         input sequences are amino acid (default is nucleotide) [False]\n");
+    err_printf("    -B --blosum             use BLOSUM62 for protein alignment [False]\n");
     err_printf("    -l --in-list            input file is a list of sequence file names [False]\n");
     err_printf("                            each line is one sequence file containing a set of sequences\n");
     err_printf("                            which will be aligned by abPOA to generate a consensus sequence\n");
@@ -161,7 +163,7 @@ int abpoa_main(char *file_fn, int is_list, abpoa_para_t *abpt){
 
 int main(int argc, char **argv) {
     int c, m, in_list=0; char *s; abpoa_para_t *abpt = abpoa_init_para();
-    while ((c = getopt_long(argc, argv, "m:M:X:t:O:E:b:f:z:e:QSk:w:n:i:clpso:r:g:d:q:hvV:", abpoa_long_opt, NULL)) >= 0) {
+    while ((c = getopt_long(argc, argv, "m:M:X:t:O:E:b:f:z:e:QSk:w:n:i:clpsBo:r:g:d:q:hvV:", abpoa_long_opt, NULL)) >= 0) {
         switch(c)
         {
             case 'm': m = atoi(optarg);
@@ -203,6 +205,7 @@ int main(int argc, char **argv) {
                       else err_printf("Error: unknown output result mode: %s.\n", optarg);
                       break;
             case 'g': abpt->out_pog= strdup(optarg); break;
+            case 'B': abpt->use_score_matrix = 2; break;
 
             case 'd': abpt->max_n_cons = atoi(optarg); break; 
             case 'q': abpt->min_freq = atof(optarg); break;

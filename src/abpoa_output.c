@@ -70,8 +70,7 @@ abpoa_cons_t *abpoa_allocate_rc_msa(abpoa_cons_t *abc, int msa_len, int n_seq, i
 void abpoa_output_rc_msa(abpoa_t *ab, abpoa_para_t *abpt, FILE *out_fp) {
     if (out_fp == NULL) return;
     // print U in RNA
-    short changedU = (ab_char256_table['U'] != 'U'); char rawU = ab_char256_table['U'];
-    if(changedU) ab_char256_table['U'] = 'U';
+    if(abpt->has_u) ab_char256_table[3] = 'U';
     int i, j;
     abpoa_seq_t *abs = ab->abs; abpoa_cons_t *abc = ab->abc;
     if (abc->msa_len <= 0) return;
@@ -101,7 +100,7 @@ void abpoa_output_rc_msa(abpoa_t *ab, abpoa_para_t *abpt, FILE *out_fp) {
             fprintf(out_fp, "\n");
         }
     }
-    ab_char256_table['U'] = rawU; // revert change
+    ab_char256_table[3] = 'T'; // revert change
 }
 
 void abpoa_set_msa_seq(abpoa_node_t node, int rank, uint8_t **msa_base) {
@@ -190,6 +189,8 @@ void abpoa_generate_gfa(abpoa_t *ab, abpoa_para_t *abpt, FILE *out_fp) {
 
     kdq_int_t *q = kdq_init_int();
 
+    if(abpt->has_u) ab_char256_table[3] = 'U';
+
     // Breadth-First-Search
     kdq_push_int(q, ABPOA_SRC_NODE_ID); 
     while ((id = kdq_shift_int(q)) != 0) {
@@ -269,6 +270,7 @@ void abpoa_generate_gfa(abpoa_t *ab, abpoa_para_t *abpt, FILE *out_fp) {
     free(in_degree);
     for (i = 0; i < n_seq; ++i) free(read_paths[i]); 
     free(read_paths); free(read_path_i);
+    ab_char256_table[3] = 'T';
 }
 
 int abpoa_cons_phred_score(int n_cov, int n_seq) {
@@ -498,6 +500,7 @@ void abpoa_multip_heaviest_bundling(abpoa_graph_t *abg, abpoa_para_t *abpt, int 
 
 void abpoa_output_fx_consensus(abpoa_t *ab, abpoa_para_t *abpt, FILE *out_fp) {
     if (out_fp == NULL) return;
+    if(abpt->has_u) ab_char256_table[3] = 'U';
     int cons_i, j;
     abpoa_cons_t *abc = ab->abc;
     for (cons_i = 0; cons_i < abc->n_cons; ++cons_i) {
@@ -529,6 +532,7 @@ void abpoa_output_fx_consensus(abpoa_t *ab, abpoa_para_t *abpt, FILE *out_fp) {
             } fprintf(out_fp, "\n");
         }
     }
+    ab_char256_table[3] = 'T';
 }
 
 abpoa_cons_t *abpoa_allocate_cons(abpoa_cons_t *abc, int n_node, int n_seq, int n_cons) {

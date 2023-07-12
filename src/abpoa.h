@@ -75,6 +75,7 @@ typedef struct {
     int align_mode, gap_mode, max_n_cons;
     double min_freq; // for multiploid data
     int verbose; // to control output msg
+    int has_u; // detect RNA sequences
 
     // char LogTable65536[65536];
     // char bit_table16[65536];
