@@ -31,6 +31,7 @@ extern char ab_aa256_table[256];
 extern char ab_char26_table[256];
 extern char ab_char256_table[256];
 extern char ab_blosum62[][100];
+extern char ab_hoxd70[][100];
 
 void parse_mat_first_line(char *l, int *order) {
     int i, n;
@@ -85,14 +86,14 @@ void abpoa_set_mat_from_file(abpoa_para_t *abpt, char *mat_fn) {
     free(l); free(order); fclose(fp);
 }
 
-void abpoa_set_mat_from_var(abpoa_para_t *abpt, char** matrix, int abpt_sz)
+int abpoa_set_mat_from_var(abpoa_para_t *abpt, char** matrix, int abpt_sz)
 {
-    char *this_line = matrix[0];
+    char *this_line = (char*)(matrix + 0);
     int first_line = 1;
     if(abpt_sz != abpt->m) 
     {
         err_func_printf(__func__, "Warning: matrix length %d is different with default setting (%d). Use default matrix", abpt->m, abpt_sz); 
-        return; 
+        return 1; 
     }
     int *order = (int*)_err_malloc(abpt_sz * sizeof(int));
     for(; strlen(this_line) > 0; ++ this_line)
@@ -117,6 +118,7 @@ void abpoa_set_mat_from_var(abpoa_para_t *abpt, char** matrix, int abpt_sz)
             abpt->min_mis = -abpt->mat[i];
     }
     free(order);
+    return 0;
 }
 
 void abpoa_set_gap_mode(abpoa_para_t *abpt) {
@@ -170,6 +172,7 @@ abpoa_para_t *abpoa_init_para(void) {
     abpt->progressive_poa = 0; // progressive partial order alignment
 
     abpt->verbose = 0;
+    abpt->changed_gap_pen = 0;
 
     // abpt->simd_flag = simd_check();
 
@@ -204,8 +207,20 @@ void abpoa_post_set_para(abpoa_para_t *abpt) {
     else if(abpt->use_score_matrix == 2) 
     {
         _err_simple_func_printf("Try to use BLOSUM62 matrix");
-        abpoa_set_mat_from_var(abpt, (char**)ab_blosum62, 26);
-        
+        abpoa_set_mat_from_var(abpt, (char**)ab_blosum62, 27);
+    }
+    else if(abpt->use_score_matrix == 3)
+    {
+        _err_simple_func_printf("Try to use HOXD70 matrix");
+        if(abpoa_set_mat_from_var(abpt, (char**)ab_hoxd70, 5) == 0 && abpt->changed_gap_pen == 0)
+        {
+            abpt->gap_open1 = 400; abpt->gap_ext1 = 30; abpt->gap_open2 = 0;
+            abpoa_set_gap_mode(abpt);
+        }
+        err_func_format_printf(__func__, "Gap penalty (O1, E1) = (%d, %d); (O2, E2) = (%d, %d)\n",
+                               abpt->gap_open1, abpt->gap_mode != ABPOA_LINEAR_GAP ? abpt->gap_ext1 : 0,
+                               abpt->gap_mode == ABPOA_CONVEX_GAP ? abpt->gap_open2 : 0,
+                               abpt->gap_mode == ABPOA_CONVEX_GAP ? abpt->gap_ext2  : 0);
     }
     else err_fatal_core(__func__, "score matrix = %d, which is unsupported.\n", abpt->use_score_matrix);
 }

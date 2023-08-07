@@ -74,6 +74,7 @@ endif
 		$(CC) -c $(CFLAGS) $< -I$(INC_DIR) -o $@
 
 BIN      = $(BIN_DIR)/abpoa
+BIN_PROF = $(BIN_DIR)/abpoa_profile
 ifneq ($(gdb),)
 	BIN  = $(BIN_DIR)/gdb_abpoa
 endif
@@ -81,10 +82,15 @@ ABPOALIB = $(LIB_DIR)/libabpoa.a
 EXAMPLE  = example
 
 
-all:       $(BIN)
-abpoa:     $(BIN)
-libabpoa:  $(ABPOALIB)
-example:   $(EXAMPLE)
+all:           $(BIN) $(BIN_PROF)
+abpoa:         $(BIN)
+abpoa_profile: $(BIN_PROF)
+libabpoa:      $(ABPOALIB)
+example:       $(EXAMPLE)
+
+$(BIN_PROF): $(SRC_DIR)/abpoa_profile.o $(ABPOALIB)
+	if [ ! -d $(BIN_DIR) ]; then mkdir $(BIN_DIR); fi
+	$(CC) $(CFLAGS) $< -I$(INC_DIR) -L$(LIB_DIR) -labpoa $(LIB) -o $@ $(PG_FLAG)
 
 $(BIN):$(SRC_DIR)/abpoa.o $(ABPOALIB)
 	if [ ! -d $(BIN_DIR) ]; then mkdir $(BIN_DIR); fi
@@ -108,4 +114,4 @@ $(SRC_DIR)/simd_abpoa_align.o:$(SRC_DIR)/simd_abpoa_align.c $(SRC_DIR)/abpoa_gra
 	$(CC) -c $(CFLAGS) $(SIMD_FLAG) -I$(INC_DIR) $< -o $@
 
 clean:
-	rm -f $(SRC_DIR)/*.[oa] $(LIB_DIR)/*.[oa] $(BIN)
+	rm -f $(SRC_DIR)/*.[oa] $(LIB_DIR)/*.[oa] $(BIN) $(BIN_PROF)

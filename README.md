@@ -13,6 +13,13 @@
 
 Modified by wym6912 wym6912@outlook.com
 
+## Updates (v1.4.1.3)
+
+- Fix a bug related to uninitialized values in local mode
+- Add `HOXD70` matrix arugment with gap open penalty\=400 and gap extension penalty\=30 (`-H/--hoxd`)
+- Add two profile alignment modes in new program `abpoa_profile`
+- Fix output bug in printing sequences has gaps
+
 ## Updates (v1.4.1.2)
 
 - Fix bug in outputting RNA sequences in `v1.4.1.1`
@@ -46,8 +53,8 @@ abPOA is not only a stand-alone tool for MSA and consensus calling, it can also 
 
 Download the [latest release](https://github.com/malabz/abPOA/releases):
 ```bash
-wget https://github.com/malabz/abPOA/releases/download/v1.4.1.1/abPOA-v1.4.1.1.tar.gz
-tar -zxvf abPOA-v1.4.1.1.tar.gz && cd abPOA-v1.4.1.1
+wget https://github.com/malabz/abPOA/releases/download/v1.4.1.3/abPOA-v1.4.1.3.tar.gz
+tar -zxvf abPOA-v1.4.1.3.tar.gz && cd abPOA-v1.4.1.3
 ```
 Make from source and run with test data:
 ```bash

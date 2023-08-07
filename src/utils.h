@@ -58,7 +58,6 @@
 
 #define xopen(fn, mode) err_xopen_core(__func__, fn, mode)
 #define xreopen(fn, mode, fp) err_xreopen_core(__func__, fn, mode, fp)
-#define xzopen(fn, mode) err_xzopen_core(__func__, fn, mode)
 
 #define xassert(cond, msg) if ((cond) == 0) _err_fatal_simple_core(__func__, msg)
 

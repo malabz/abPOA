@@ -3,6 +3,7 @@
 
 #include "abpoa.h"
 #include "abpoa_graph.h"
+#include "abpoa_seed.h"
 
 #define CHUNK_READ_N 1024
 
@@ -121,6 +122,9 @@ static inline void abpoa_print_cigar(int n_cigar, abpoa_cigar_t *cigar, abpoa_gr
         printf("%d%c ", n[i], ABPOA_CIGAR_STR[i]);
     printf("\n");
 }
+
+int abpoa_anchor_poa(abpoa_t *ab, abpoa_para_t *abpt, uint8_t **seqs, int **weights, int *seq_lens, ab_u64_v par_anchors, int *par_c, int *tpos_to_node_id, int *qpos_to_node_id, int *read_id_map, int exist_n_seq, int n_seq);
+int abpoa_poa(abpoa_t *ab, abpoa_para_t *abpt, uint8_t **seqs, int **weights, int *seq_lens, int exist_n_seq, int n_seq);
 
 #ifdef __cplusplus
 }

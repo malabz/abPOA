@@ -76,6 +76,7 @@ typedef struct {
     double min_freq; // for multiploid data
     int verbose; // to control output msg
     int has_u; // detect RNA sequences
+    int changed_gap_pen;
 
     // char LogTable65536[65536];
     // char bit_table16[65536];
