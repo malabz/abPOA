@@ -13,6 +13,11 @@
 
 Modified by wym6912 wym6912@outlook.com
 
+## Updates (v1.4.1.4)
+
+- Fix a critical bug on freeing SIMD varibles in Windows programs
+- Fix a program display bug in `abpoa_profile`
+
 ## Updates (v1.4.1.3)
 
 - Fix a bug related to uninitialized values in local mode

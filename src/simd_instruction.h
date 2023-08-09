@@ -51,9 +51,14 @@
 #define SIMD_AVX512F  0x100
 #define SIMD_AVX512BW 0x200
 
+#if (defined(_WIN32) || defined(_WIN64))
+#define SIMDFree(x) _aligned_free(x)
+#else
 // #define SIMDFree(x) _mm_free(x)
 // posix_memalign and free
+
 #define SIMDFree(x) free(x)
+#endif
 
 // Shift, Blend, ... for 8/16 and 32/64
 #ifdef __AVX512BW__

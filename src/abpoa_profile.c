@@ -14,14 +14,14 @@
 #endif
 
 char NAME[20] = "abPOA";
-char PROG[20] = "abpoa";
+char PROG[20] = "abpoa_profile";
 #define _ba BOLD UNDERLINE "a" NONE
 #define _bb BOLD UNDERLINE "b" NONE
 #define _bP BOLD UNDERLINE "P" NONE
 #define _bO BOLD UNDERLINE "O" NONE
 #define _bA BOLD UNDERLINE "A" NONE
-char DESCRIPTION[200] = _ba "daptive " _bb "anded " _bP "artial " _bO "rder " _bA "lignment profile process";
-char VERSION[20] = "1.4.1.3";
+char DESCRIPTION[200] = _ba "daptive " _bb "anded " _bP "artial " _bO "rder " _bA "lignment profile-profile mode";
+char VERSION[20] = "1.4.1.4";
 char CONTACT[30] = "gaoy1@chop.edu";
 
 int need_prealign;
