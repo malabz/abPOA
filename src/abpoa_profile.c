@@ -21,7 +21,7 @@ char PROG[20] = "abpoa_profile";
 #define _bO BOLD UNDERLINE "O" NONE
 #define _bA BOLD UNDERLINE "A" NONE
 char DESCRIPTION[200] = _ba "daptive " _bb "anded " _bP "artial " _bO "rder " _bA "lignment profile-profile mode";
-char VERSION[20] = "1.4.1.4";
+char VERSION[20] = "1.4.1.5";
 char CONTACT[30] = "gaoy1@chop.edu";
 
 int need_prealign;

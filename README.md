@@ -13,6 +13,11 @@
 
 Modified by wym6912 wym6912@outlook.com
 
+## Updates (v1.4.1.5)
+
+- Try to fix a bug on processing 0 length sequence
+- Add sequence comment print
+
 ## Updates (v1.4.1.4)
 
 - Fix a critical bug on freeing SIMD varibles in Windows programs
@@ -58,8 +63,8 @@ abPOA is not only a stand-alone tool for MSA and consensus calling, it can also 
 
 Download the [latest release](https://github.com/malabz/abPOA/releases):
 ```bash
-wget https://github.com/malabz/abPOA/releases/download/v1.4.1.3/abPOA-v1.4.1.3.tar.gz
-tar -zxvf abPOA-v1.4.1.3.tar.gz && cd abPOA-v1.4.1.3
+wget https://github.com/malabz/abPOA/releases/download/v1.4.1.5/abPOA-v1.4.1.5.tar.gz
+tar -zxvf abPOA-v1.4.1.5.tar.gz && cd abPOA-v1.4.1.5
 ```
 Make from source and run with test data:
 ```bash
@@ -73,7 +78,7 @@ abpoa ./test_data/seq.fa > cons.fa
 
 ### Windows
 
-Download the [latest release](https://github.com/malabz/abPOA/releases/download/v1.4.1.1/abPOA-v1.4.1.1.tar.gz) and use `Bandizip`, `WinRAR` or any other archive manager software.
+Download the [latest release](https://github.com/malabz/abPOA/releases/download/v1.4.1.5/abPOA-v1.4.1.5.tar.gz) and use `Bandizip`, `WinRAR` or any other archive manager software.
 
 Make programs from `Visual Studio 2022`:
 - First of all, download and install [`Visual Studio 2022`](https://visualstudio.microsoft.com/vs/).
@@ -111,8 +116,20 @@ abpoa ./test_data/seq.fa > cons.fa
 ## Table of Contents
 
 - [abPOA: adaptive banded Partial Order Alignment](#abpoa-adaptive-banded-partial-order-alignment)
-  - [Updates (v1.4.1)](#updates-v141)
+- [Modified by wym6912](#modified-by-wym6912)
+  - [Updates (v1.4.1.5)](#updates-v1415)
+  - [Updates (v1.4.1.4)](#updates-v1414)
+  - [Updates (v1.4.1.3)](#updates-v1413)
+  - [Updates (v1.4.1.2)](#updates-v1412)
+  - [Updates (v1.4.1.1)](#updates-v1411)
+  - [Windows support](#windows-support)
+    - [For development in Windows](#for-development-in-windows)
   - [Getting started](#getting-started)
+    - [Linux](#linux)
+    - [Windows](#windows)
+- [RAW README](#raw-readme)
+  - [Updates (v1.4.1)](#updates-v141)
+  - [Getting started](#getting-started-1)
   - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Installation](#installation)
@@ -140,7 +157,6 @@ abpoa ./test_data/seq.fa > cons.fa
   - [For development](#for-development)
   - [Evaluation datasets](#evaluation-datasets)
   - [Contact](#contact)
-  - [Windows modification](#windows-modification)
 
 ## <a name="introduction"></a>Introduction
 abPOA is an extended version of [Partial Order Alignment (POA](10.1093/bioinformatics/18.3.452)) 

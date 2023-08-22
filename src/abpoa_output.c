@@ -77,9 +77,9 @@ void abpoa_output_rc_msa(abpoa_t *ab, abpoa_para_t *abpt, FILE *out_fp) {
     abpoa_seq_t *abs = ab->abs; abpoa_cons_t *abc = ab->abc;
     if (abc->msa_len <= 0) return;
     for (i = 0; i < abs->n_seq; ++i) {
-        if (abs->name[i].l > 0) {
-            if (abs->is_rc[i]) fprintf(out_fp, ">%s_reverse_complement\n", abs->name[i].s);
-            else fprintf(out_fp, ">%s\n", abs->name[i].s);
+        if (abs->name[i].l + abs->comment[i].l > 0) {
+            if (abs->is_rc[i]) fprintf(out_fp, ">%s_reverse_complement %s\n", abs->name[i].l ? abs->name[i].s : "", abs->comment[i].l ? abs->comment[i].s : "");
+            else fprintf(out_fp, ">%s %s\n", abs->name[i].l ? abs->name[i].s : "", abs->comment[i].l ? abs->comment[i].s : "");
         } else {
             fprintf(out_fp, ">Seq_%d\n", i+1);
         }

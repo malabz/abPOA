@@ -364,6 +364,7 @@ int abpoa_poa(abpoa_t *ab, abpoa_para_t *abpt, uint8_t **seqs, int **weights, in
     uint8_t *qseq, *rc_qseq; int *weight, *rc_weight;
     // uint8_t *seq1;
     for (i = 0; i < n_seq; ++i) {
+        if(seq_lens[i] == 0) continue;
         qlen = seq_lens[i]; qseq = seqs[i]; weight = weights[i]; read_id = exist_n_seq + i;
 #ifdef __DEBUG__
         fprintf(stderr, "seq: # %d\n", i);
@@ -507,9 +508,39 @@ int abpoa_msa1(abpoa_t *ab, abpoa_para_t *abpt, char *read_fn, FILE *out_fp) {
     // always reset graph before perform POA
     int max_len = 0;
     for (i = 0; i < abs->n_seq; ++i) {
+        if (! abs->seq[i].l)
+        {
+            _err_simple_func_printf("Warning: Found a sequence length = 0. Program maybe generate wrong consensus sequence and wrong gfa.");
+            continue;
+        }
+        else if (abs->seq[i].l == 1 && abs->seq[i].s[0] == 13)
+        {
+            _err_simple_func_printf("Warning: Found a sequence length = 0. Program maybe generate wrong consensus sequence and wrong gfa.");
+            continue;
+        }
         if (abs->seq[i].l > max_len) max_len = abs->seq[i].l;
     }
 
+    if (max_len == 0)
+    {
+        if (abpt->out_cons)
+            err_printf("Warning: no consensus sequence generated.\n");
+        if (abpt->out_gfa)
+            err_printf("Warning: no gfa generated.\n");
+        if (abpt->out_msa)
+        {
+            for(i = 0; i < abs->n_seq; ++i)
+            {
+                if (abs->name[i].l + abs->comment[i].l > 0) {
+                    fprintf(out_fp, ">%s %s\n", abs->name[i].l ? abs->name[i].s : "", abs->comment[i].l ? abs->comment[i].s : "");
+                } else {
+                    fprintf(out_fp, ">Seq_%d\n", i+1);
+                }
+                fputc('\n', out_fp);
+            }
+        }
+        return 0;
+    }
     // detect u and t
     int has_st = 0, has_su = 0;
 
